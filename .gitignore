@@ -1,0 +1,24 @@
+.vagrant/
+web/sites/*/files
+private/*
+/vendor
+/cache
+/logs
+
+# Deployment, IDE files
+*.sublime-project
+*.sublime-workspace
+*.sublime-projectcompletions
+web/nbproject
+.platform/local/
+
+# Docker override & data dirs
+docker-compose.override.yml
+.devops/docker/mysql/data/*
+
+# OS files and crap
+.DS_Store
+.idea
+Thumbs.db
+*.back
+dumps/

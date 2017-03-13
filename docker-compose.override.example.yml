@@ -1,0 +1,23 @@
+version: '2'
+services:
+
+  app:
+    volumes_from:
+      - container:myapp-sync:rw # will be mounted on /var/www
+  nginx:
+    volumes_from:
+      - container:myapp-sync:ro # will be mounted on /var/www
+    ports:
+      # YourMachinePort:ContainerPort
+      - "80:80"
+      - "2024:2222"
+
+  pma:
+    ports:
+      # YourMachinePort:ContainerPort
+      - "8088:80"
+
+  mail:
+    ports:
+      # YourMachinePort:ContainerPort
+      - "8020:80"

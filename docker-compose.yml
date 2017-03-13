@@ -1,0 +1,75 @@
+version: '2'
+services:
+
+  app:
+    build: .
+    volumes:
+      #- ./:/var/www
+      - .devops/docker/app/php/fpm/www.conf:/usr/local/etc/php-fpm.d/www.conf
+    ports:
+      - "9000"
+      - "2024:22"
+    links:
+      - mysql
+      - mail
+      - blackfire
+      - redis
+
+  nginx:
+    image: nginx:stable
+    links:
+      - app
+    ports:
+      - "80"
+      - "443"
+    volumes:
+      #- ./:/var/www
+      - .devops/docker/nginx/conf.d:/etc/nginx/conf.d
+
+  redis:
+    image: redis:3.2
+    environment:
+      REDIS_MAXMEMORY_POLICY: 'allkeys-lru'
+      REDIS_MAXMEMORY: '256mb'
+    ports:
+      - "6379"
+    command: 'redis-server --appendonly no'
+
+  mysql:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: drupal-password
+      MYSQL_DATABASE: drupal
+    volumes:
+      - .devops/docker/mysql/.conf:/etc/mysql/conf.d
+      - ./private:/dumps
+    ports:
+      - "3306"
+    command: "mysqld \
+      --innodb_file_per_table=1 \
+      --innodb_flush_neighbors=0"
+
+  blackfire:
+     restart: 'no'
+     image: blackfire/blackfire
+     environment:
+        - BLACKFIRE_SERVER_ID
+        - BLACKFIRE_SERVER_TOKEN
+     ports:
+       - "8707"
+
+  pma:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PHP_UPLOAD_MAX_FILESIZE: '128M'
+    ports:
+      - "80"
+    links:
+      - mysql:db
+
+  mail:
+    # https://hub.docker.com/r/mailhog/mailhog/
+    image: mailhog/mailhog
+    ports:
+      - "1025"
+      - "8025"
